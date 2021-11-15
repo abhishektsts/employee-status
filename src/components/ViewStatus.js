@@ -1,15 +1,23 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useMemo } from "react";
+import { useTable } from "react-table";
 import data from "../data/data.json";
+import { COLUMNS } from "./Columns";
+
 function ViewStatus() {
-  const [posts, setPosts] = useState([]);
-  useEffect(() => {
-    data.map((post) => post);
+  const columns = useMemo(() => COLUMNS, []);
+  const tableData = useMemo(() => data, []);
+
+  const tableInstance = useTable({
+    columns: columns,
+    data: tableData,
   });
+
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
 
   return (
     <div className="container">
-      <h3>View Status</h3>
+      <h3 className="mt-3">View Status</h3>
       <form>
         <h6>Filters:</h6>
         <div className="row mb-3 border">
@@ -50,56 +58,46 @@ function ViewStatus() {
           </div>
         </div>
       </form>
-      <table className="table table-bordered">
+      <table {...getTableProps()} className="table table-hover table-bordered">
         <thead>
-          <tr>
-            <th scope="col">Serial No.</th>
-            <th scope="col">Name</th>
-            <th scope="col">Team</th>
-            <th scope="col">Ticket No.</th>
-            <th scope="col">Status</th>
-            <th scope="col">Date</th>
-            <th scope="col">Description</th>
-            <th scope="col">Edit/Delete</th>
-          </tr>
+          {// Loop over the header rows
+       headerGroups.map(headerGroup => (
+        // Apply the header row props
+        <tr {...headerGroup.getHeaderGroupProps()}>
+          {// Loop over the headers in each row
+          headerGroup.headers.map(column => (
+            // Apply the header cell props
+            <th {...column.getHeaderProps()}>
+              {// Render the header
+              column.render('Header')}
+            </th>
+          ))}
+        </tr>
+      ))}
         </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>mdo</td>
-            <td>Done</td>
-            <td>01-01-2022</td>
-            <td>Otto</td>
-            <td></td>
+        <tbody {...getTableBodyProps()}>
+          {// Loop over the table rows
+       rows.map(row => {
+        // Prepare the row for display
+        prepareRow(row)
+        return (
+          // Apply the row props
+          <tr {...row.getRowProps()}>
+            {// Loop over the rows cells
+            row.cells.map(cell => {
+              // Apply the cell props
+              return (
+                <td {...cell.getCellProps()}>
+                  {// Render the cell contents
+                  cell.render('Cell')}
+                </td>
+              )
+            })}
           </tr>
+        )
+      })}
         </tbody>
       </table>
-      <nav aria-label="Page navigation example">
-        <ul className="pagination justify-content-center">
-          <li className="page-item">
-            <a className="page-link" href="#">
-              Previous
-            </a>
-          </li>
-          <li className="page-item">
-            <a className="page-link" href="#">
-              1
-            </a>
-          </li>
-          <li className="page-item">
-            <a className="page-link" href="#">
-              2
-            </a>
-          </li>
-          <li className="page-item">
-            <a className="page-link" href="#">
-              Next
-            </a>
-          </li>
-        </ul>
-      </nav>
     </div>
   );
 }
